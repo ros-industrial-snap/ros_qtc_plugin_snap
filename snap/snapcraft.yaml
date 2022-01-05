@@ -1,17 +1,161 @@
-name: my-snap-name # you probably want to 'snapcraft register <name>'
-base: core20 # the base snap is the execution environment for this snap
-version: '0.1' # just for humans, typically '1.2+git' or '1.3.2'
-summary: Single-line elevator pitch for your amazing snap # 79 char long summary
-description: |
-  This is my-snap's description. You have a paragraph or two to tell the
-  most important story about your snap. Keep it under 100 words though,
-  we live in tweetspace and your description wants to look good in the snap
-  store.
+name: qtcreator-ros
+base: core20
+adopt-info: qtcreator
+icon: snap/gui/qtcreator-ros.svg
+summary: Qt Creator with ROS plugin
 
-grade: devel # must be 'stable' to release into candidate/stable channels
-confinement: devmode # use 'strict' once you have the right plugs and slots
+grade: stable
+confinement: classic
 
 parts:
-  my-part:
-    # See 'snapcraft plugins'
+
+  # the 'cmake' plugin manipulates the installation prefix in a non-standard way:
+  # https://forum.snapcraft.io/t/different-cmake-behaviour-for-snapcraft-part-install/28257
+  # we therefore call CMake + Ninja manually and have to install build dependencies manually too
+  build-deps:
     plugin: nil
+    build-packages:
+    - cmake
+    - ninja-build
+
+  qt6:
+    after: [build-deps]
+    plugin: nil
+    build-packages:
+    - libegl-dev
+    - libgl-dev
+    - libharfbuzz-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libvulkan-dev
+    - libwayland-dev
+    # xcb QPA (Qt Platform Abstraction) platform plugin
+    - libfontconfig1-dev
+    - libfreetype6-dev
+    - libx11-dev
+    - libx11-xcb-dev
+    - libxext-dev
+    - libxfixes-dev
+    - libxi-dev
+    - libxrender-dev
+    - libxcb1-dev
+    - libxcb-glx0-dev
+    - libxcb-keysyms1-dev
+    - libxcb-image0-dev
+    - libxcb-shm0-dev
+    - libxcb-icccm4-dev
+    - libxcb-sync-dev
+    - libxcb-xfixes0-dev
+    - libxcb-shape0-dev
+    - libxcb-randr0-dev
+    - libxcb-render-util0-dev
+    - libxkbcommon-dev
+    - libxkbcommon-x11-dev
+    override-pull: |
+      git clone git://code.qt.io/qt/qt5.git --depth 1 --shallow-submodules --branch v6.2.2
+      cd qt5
+      ./init-repository --module-subset=qt5compat,qtbase,qtdeclarative,qtquick3d,qtserialport,qtshadertools,qtsvg,qttools
+    # run "make" and "make install" separately https://bugreports.qt.io/browse/QTBUG-60496
+    override-build: |
+      cd qt5
+      ./configure -cmake-generator Ninja -xcb -egl -opengl desktop -prefix ${SNAPCRAFT_PART_INSTALL}
+      cmake --build .
+      cmake --install .
+    stage-packages:
+    - libegl1
+    - libfontconfig1
+    - libfreetype6
+    - libgl1
+    - libglvnd0
+    - libglx0
+    - libgraphite2-3
+    - libharfbuzz0b
+    - libicu66
+    - libjpeg-turbo8
+    - libpcre2-16-0
+    - libpng16-16
+    - libx11-6
+    - libx11-xcb1
+    - libxau6
+    - libxcb-glx0
+    - libxcb-icccm4
+    - libxcb-image0
+    - libxcb-keysyms1
+    - libxcb-randr0
+    - libxcb-render-util0
+    - libxcb-render0
+    - libxcb-shape0
+    - libxcb-shm0
+    - libxcb-sync1
+    - libxcb-util1
+    - libxcb-xfixes0
+    - libxcb-xkb1
+    - libxcb1
+    - libxdmcp6
+    - libxkbcommon-x11-0
+    - libxkbcommon0
+
+  qtcreator:
+    after: [qt6]
+    source: git://code.qt.io/qt-creator/qt-creator.git
+    source-tag: v6.0.2
+    source-depth: 1
+    parse-info: [share/metainfo/org.qt-project.qtcreator.appdata.xml]
+    build-packages:
+    - libdw-dev
+    plugin: nil
+    override-build: |
+      cmake -B . -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${SNAPCRAFT_PART_INSTALL}
+      cmake --build .
+      cmake --install .
+      cmake --install . --component Devel
+    build-environment:
+    - LD_LIBRARY_PATH: ${SNAPCRAFT_STAGE}/lib/
+    stage-packages:
+    - libdw1
+    - libyaml-cpp0.6
+
+  plugin-ros:
+    after: [qtcreator]
+    source: https://github.com/ros-industrial/ros_qtc_plugin.git
+    source-tag: "0.5.0"
+    source-depth: 1
+    plugin: nil
+    override-build: |
+      cmake -B . -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${SNAPCRAFT_PART_INSTALL} -DCMAKE_PREFIX_PATH=${SNAPCRAFT_STAGE}
+      cmake --build .
+      cmake --install .
+    build-packages:
+    - libyaml-cpp-dev
+    stage-packages:
+    - libyaml-cpp0.6
+
+
+  launchers:
+    after: [qtcreator]
+    plugin: nil
+    override-prime: |
+      sed -i -e 's|Name=Qt Creator|Name=Qt Creator ROS|g' share/applications/org.qt-project.qtcreator.desktop
+      sed -i -e 's|Icon=QtProject-qtcreator|Icon=${SNAP}/meta/gui/qtcreator-ros.svg|g' share/applications/org.qt-project.qtcreator.desktop
+
+  cleanup:
+    after: [launchers]
+    plugin: nil
+    override-prime: |
+      shopt -s extglob
+      rm -f -v bin/!("qtcreator"|"qtcreator.sh")
+      rm -f -r doc etc include lib/{cmake,metatypes,objects-Release,qtcreator/objects-Release}
+      rm -f lib/*.prl
+      rm -f -v libexec/!("qtcreator")
+      rm -f -r mkspecs modules phrasebooks qml
+      rm -f -r share/qtcreator/{HACKING,LICENSE.GPL3-EXCEPT,README.md}
+      rm -f -r usr
+      shopt -u extglob
+
+apps:
+  qtcreator-ros:
+    command: bin/qtcreator
+    common-id: org.qt-project.qtcreator.desktop
+    desktop: share/applications/org.qt-project.qtcreator.desktop
+    environment:
+      LD_LIBRARY_PATH: ${SNAP}/lib
