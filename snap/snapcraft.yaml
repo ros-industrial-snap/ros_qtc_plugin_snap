@@ -7,6 +7,10 @@ summary: Qt Creator with ROS plugin
 grade: stable
 confinement: classic
 
+architectures:
+  - build-on: amd64
+  - build-on: arm64
+
 parts:
 
   # the 'cmake' plugin manipulates the installation prefix in a non-standard way:
