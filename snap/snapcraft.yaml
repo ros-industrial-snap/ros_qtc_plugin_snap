@@ -102,7 +102,7 @@ parts:
   qtcreator:
     after: [qt6]
     source: git://code.qt.io/qt-creator/qt-creator.git
-    source-tag: v6.0.2
+    source-tag: v7.0.0
     source-depth: 1
     parse-info: [share/metainfo/org.qt-project.qtcreator.appdata.xml]
     build-packages:
@@ -122,7 +122,7 @@ parts:
   plugin-ros:
     after: [qtcreator]
     source: https://github.com/ros-industrial/ros_qtc_plugin.git
-    source-tag: "0.5.0"
+    source-tag: "0.6.0"
     source-depth: 1
     plugin: nil
     override-build: |
