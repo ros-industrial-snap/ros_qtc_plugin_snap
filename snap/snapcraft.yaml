@@ -1,4 +1,5 @@
 name: qtcreator-ros
+title: Qt Creator
 base: core20
 adopt-info: qtcreator
 icon: snap/gui/qtcreator-ros.svg
