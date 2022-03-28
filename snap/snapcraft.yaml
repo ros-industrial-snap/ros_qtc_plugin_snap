@@ -163,3 +163,4 @@ apps:
     desktop: share/applications/org.qt-project.qtcreator.desktop
     environment:
       LD_LIBRARY_PATH: ${SNAP}/lib
+      QT_QPA_PLATFORM: wayland;xcb
