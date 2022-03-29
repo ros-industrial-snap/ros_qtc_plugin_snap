@@ -155,6 +155,7 @@ parts:
       rm -f -v libexec/!("qtcreator")
       rm -f -r mkspecs modules phrasebooks qml
       rm -f -r share/qtcreator/{HACKING,LICENSE.GPL3-EXCEPT,README.md}
+      rm -f -r usr/share/{bug,doc,doc-base,drirc.d,lintian,man,pkgconfig}
       shopt -u extglob
 
 apps:
