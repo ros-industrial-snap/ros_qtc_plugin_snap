@@ -79,6 +79,7 @@ parts:
     - libjpeg-turbo8
     - libpcre2-16-0
     - libpng16-16
+    - libwayland-cursor0
     - libx11-6
     - libx11-xcb1
     - libxau6
