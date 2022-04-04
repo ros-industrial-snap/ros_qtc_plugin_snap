@@ -137,6 +137,24 @@ parts:
     stage-packages:
     - libyaml-cpp0.6
 
+  # install mesa with 'no-patchelf' for DRI drivers
+  # https://forum.snapcraft.io/t/opengl-broken-in-classic-core20-snap-on-22-04/29401/2
+  mesa-patchelf:
+    plugin: nil
+    stage-packages:
+    - libgl1-mesa-dri
+    stage:
+    - -usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
+
+  mesa-no-patchelf:
+    plugin: nil
+    stage-packages:
+    - libgl1-mesa-dri
+    build-attributes:
+    - no-patchelf
+    stage:
+    - usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
+
 
   launchers:
     after: [qtcreator]
@@ -166,4 +184,5 @@ apps:
     desktop: share/applications/org.qt-project.qtcreator.desktop
     environment:
       LD_LIBRARY_PATH: ${SNAP}/lib
+      LIBGL_DRIVERS_PATH: ${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
       QT_QPA_PLATFORM: wayland;xcb
