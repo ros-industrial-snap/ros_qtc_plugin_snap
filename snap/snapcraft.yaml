@@ -80,6 +80,7 @@ parts:
     - libpcre2-16-0
     - libpng16-16
     - libwayland-cursor0
+    - libwayland-egl1
     - libx11-6
     - libx11-xcb1
     - libxau6
