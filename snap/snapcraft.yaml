@@ -105,7 +105,7 @@ parts:
   qtcreator:
     after: [qt6]
     source: git://code.qt.io/qt-creator/qt-creator.git
-    source-tag: v9.0.2
+    source-tag: v10.0.0
     source-depth: 1
     parse-info: [share/metainfo/org.qt-project.qtcreator.appdata.xml]
     build-packages:
@@ -125,7 +125,7 @@ parts:
   plugin-ros:
     after: [qtcreator]
     source: https://github.com/ros-industrial/ros_qtc_plugin.git
-    source-tag: "9.0"
+    source-tag: "10.0"
     source-depth: 1
     plugin: nil
     override-build: |
@@ -183,6 +183,6 @@ apps:
     common-id: org.qt-project.qtcreator.desktop
     desktop: share/applications/org.qt-project.qtcreator.desktop
     environment:
-      LD_LIBRARY_PATH: ${SNAP}/lib
+      LD_LIBRARY_PATH: ${SNAP}/lib:${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}
       LIBGL_DRIVERS_PATH: ${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
       QT_QPA_PLATFORM: wayland;xcb
