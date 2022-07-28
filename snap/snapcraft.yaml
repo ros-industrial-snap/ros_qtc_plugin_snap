@@ -1,6 +1,6 @@
 name: qtcreator-ros
 title: Qt Creator
-base: core20
+base: core22
 adopt-info: qtcreator
 icon: snap/gui/qtcreator-ros.svg
 summary: Qt Creator with ROS plugin
@@ -63,7 +63,7 @@ parts:
     # run "make" and "make install" separately https://bugreports.qt.io/browse/QTBUG-60496
     override-build: |
       cd qt5
-      ./configure -cmake-generator Ninja -xcb -egl -opengl desktop -prefix ${SNAPCRAFT_PART_INSTALL}
+      ./configure -cmake-generator Ninja -xcb -egl -opengl desktop -prefix ${CRAFT_PART_INSTALL}
       cmake --build .
       cmake --install .
     stage-packages:
@@ -112,12 +112,12 @@ parts:
     - libdw-dev
     plugin: nil
     override-build: |
-      cmake -B . -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${SNAPCRAFT_PART_INSTALL}
+      cmake -B . -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${CRAFT_PART_INSTALL}
       cmake --build .
       cmake --install .
       cmake --install . --component Devel
     build-environment:
-    - LD_LIBRARY_PATH: ${SNAPCRAFT_STAGE}/lib/
+    - LD_LIBRARY_PATH: ${CRAFT_STAGE}/lib/
     stage-packages:
     - libdw1
     - libyaml-cpp0.6
@@ -129,7 +129,7 @@ parts:
     source-depth: 1
     plugin: nil
     override-build: |
-      cmake -B . -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${SNAPCRAFT_PART_INSTALL} -DCMAKE_PREFIX_PATH=${SNAPCRAFT_STAGE}
+      cmake -B . -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${CRAFT_PART_INSTALL} -DCMAKE_PREFIX_PATH=${CRAFT_STAGE}
       cmake --build .
       cmake --install .
     build-packages:
@@ -144,7 +144,7 @@ parts:
     stage-packages:
     - libgl1-mesa-dri
     stage:
-    - -usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
+    - -usr/lib/${CRAFT_ARCH_TRIPLET}/dri
 
   mesa-no-patchelf:
     plugin: nil
@@ -153,7 +153,7 @@ parts:
     build-attributes:
     - no-patchelf
     stage:
-    - usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
+    - usr/lib/${CRAFT_ARCH_TRIPLET}/dri
 
 
   launchers:
@@ -184,5 +184,5 @@ apps:
     desktop: share/applications/org.qt-project.qtcreator.desktop
     environment:
       LD_LIBRARY_PATH: ${SNAP}/lib
-      LIBGL_DRIVERS_PATH: ${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
+      LIBGL_DRIVERS_PATH: ${SNAP}/usr/lib/${CRAFT_ARCH_TRIPLET}/dri
       QT_QPA_PLATFORM: wayland;xcb
