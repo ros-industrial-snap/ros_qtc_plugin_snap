@@ -14,18 +14,37 @@ architectures:
 
 parts:
 
-  # the 'cmake' plugin manipulates the installation prefix in a non-standard way:
-  # https://forum.snapcraft.io/t/different-cmake-behaviour-for-snapcraft-part-install/28257
-  # we therefore call CMake + Ninja manually and have to install build dependencies manually too
-  build-deps:
+  # install mesa with 'no-patchelf' for DRI drivers
+  # https://forum.snapcraft.io/t/opengl-broken-in-classic-core20-snap-on-22-04/29401/2
+  mesa-patchelf:
     plugin: nil
-    build-packages:
-    - cmake
-    - ninja-build
+    stage-packages:
+    - libgl1-mesa-dri
+    build-attributes:
+    - enable-patchelf
+    stage:
+    - -usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
+
+  mesa-no-patchelf:
+    plugin: nil
+    stage-packages:
+    - libgl1-mesa-dri
+    build-attributes:
+    - no-patchelf
+    stage:
+    - usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
 
   qt6:
-    after: [build-deps]
-    plugin: nil
+    source: http://code.qt.io/qt/qt5.git
+    source-branch: "6.2.4"
+    source-depth: 1
+    source-submodules: [qt5compat,qtbase,qtdeclarative,qtquick3d,qtserialport,qtshadertools,qtsvg,qttools,qtwayland]
+    plugin: cmake
+    cmake-generator: Ninja
+    build-attributes:
+    - enable-patchelf
+    cmake-parameters:
+    - -DCMAKE_INSTALL_PREFIX=/
     build-packages:
     - libegl-dev
     - libgl-dev
@@ -56,16 +75,6 @@ parts:
     - libxcb-render-util0-dev
     - libxkbcommon-dev
     - libxkbcommon-x11-dev
-    override-pull: |
-      git clone git://code.qt.io/qt/qt5.git --depth 1 --shallow-submodules --branch v6.2.4
-      cd qt5
-      ./init-repository --module-subset=qt5compat,qtbase,qtdeclarative,qtquick3d,qtserialport,qtshadertools,qtsvg,qttools,qtwayland
-    # run "make" and "make install" separately https://bugreports.qt.io/browse/QTBUG-60496
-    override-build: |
-      cd qt5
-      ./configure -cmake-generator Ninja -xcb -egl -opengl desktop -prefix ${SNAPCRAFT_PART_INSTALL}
-      cmake --build .
-      cmake --install .
     stage-packages:
     - libegl1
     - libfontconfig1
@@ -104,20 +113,23 @@ parts:
 
   qtcreator:
     after: [qt6]
-    source: git://code.qt.io/qt-creator/qt-creator.git
+    source: http://code.qt.io/qt-creator/qt-creator.git
     source-tag: v11.0.3
     source-depth: 1
     parse-info: [share/metainfo/org.qt-project.qtcreator.appdata.xml]
+    plugin: cmake
+    cmake-generator: Ninja
+    build-attributes:
+    - enable-patchelf
+    override-build: |
+      cmake -S ${SNAPCRAFT_PART_SRC} -B ${SNAPCRAFT_PART_BUILD} -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${SNAPCRAFT_PART_INSTALL}
+      cmake --build ${SNAPCRAFT_PART_BUILD}
+      cmake --install ${SNAPCRAFT_PART_BUILD}
+      cmake --install ${SNAPCRAFT_PART_BUILD} --component Devel
+    build-environment:
+    - LD_LIBRARY_PATH: ${SNAPCRAFT_STAGE}/lib
     build-packages:
     - libdw-dev
-    plugin: nil
-    override-build: |
-      cmake -B . -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${SNAPCRAFT_PART_INSTALL}
-      cmake --build .
-      cmake --install .
-      cmake --install . --component Devel
-    build-environment:
-    - LD_LIBRARY_PATH: ${SNAPCRAFT_STAGE}/lib/
     stage-packages:
     - libdw1
     - libyaml-cpp0.6
@@ -127,34 +139,25 @@ parts:
     source: https://github.com/ros-industrial/ros_qtc_plugin.git
     source-tag: "11.0"
     source-depth: 1
-    plugin: nil
-    override-build: |
-      cmake -B . -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${SNAPCRAFT_PART_INSTALL} -DCMAKE_PREFIX_PATH=${SNAPCRAFT_STAGE}
-      cmake --build .
-      cmake --install .
+    plugin: cmake
+    cmake-generator: Ninja
+    build-attributes:
+    - enable-patchelf
+    cmake-parameters:
+    - -DCMAKE_INSTALL_PREFIX=/
+    build-environment:
+    - LD_LIBRARY_PATH: ${SNAPCRAFT_STAGE}/lib
+    # using CMAKE_INSTALL_PREFIX=/ will install to /usr/local/ nevertheless
+    override-prime: |
+      snapcraftctl prime
+      cp -r ${SNAPCRAFT_PRIME}/usr/lib/qtcreator/* ${SNAPCRAFT_PRIME}/lib/qtcreator/
+      rm -r ${SNAPCRAFT_PRIME}/usr/lib/qtcreator/
+      cp -r ${SNAPCRAFT_PRIME}/usr/share/qtcreator/* ${SNAPCRAFT_PRIME}/share/qtcreator/
+      rm -r ${SNAPCRAFT_PRIME}/usr/share/qtcreator/
     build-packages:
     - libyaml-cpp-dev
     stage-packages:
     - libyaml-cpp0.6
-
-  # install mesa with 'no-patchelf' for DRI drivers
-  # https://forum.snapcraft.io/t/opengl-broken-in-classic-core20-snap-on-22-04/29401/2
-  mesa-patchelf:
-    plugin: nil
-    stage-packages:
-    - libgl1-mesa-dri
-    stage:
-    - -usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
-
-  mesa-no-patchelf:
-    plugin: nil
-    stage-packages:
-    - libgl1-mesa-dri
-    build-attributes:
-    - no-patchelf
-    stage:
-    - usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
-
 
   launchers:
     after: [qtcreator]
@@ -168,13 +171,14 @@ parts:
     plugin: nil
     override-prime: |
       shopt -s extglob
-      rm -f -v bin/!("qtcreator"|"qtcreator.sh")
-      rm -f -r doc etc include lib/{cmake,metatypes,objects-Release,qtcreator/objects-Release}
-      rm -f lib/*.prl
-      rm -f -v libexec/!("qtcreator")
-      rm -f -r mkspecs modules phrasebooks qml
-      rm -f -r share/qtcreator/{HACKING,LICENSE.GPL3-EXCEPT,README.md}
-      rm -f -r usr/share/{bug,doc,doc-base,drirc.d,lintian,man,pkgconfig}
+      rm -v bin/!("qtcreator"|"qtcreator.sh")
+      rm -r {doc,etc,include}
+      rm -r lib/{cmake,metatypes,objects-Release,qtcreator/objects-Release}
+      rm lib/*.prl
+      rm -v libexec/!("qtcreator")
+      rm -r {modules,qml}
+      rm -r share/qtcreator/{HACKING,LICENSE.GPL3-EXCEPT,README.md}
+      rm -r usr/share/{doc,doc-base,drirc.d,man,pkgconfig}
       shopt -u extglob
 
 apps:
