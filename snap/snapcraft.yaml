@@ -1,6 +1,6 @@
 name: qtcreator-ros
 title: Qt Creator
-base: core20
+base: core22
 adopt-info: qtcreator
 icon: snap/gui/qtcreator-ros.svg
 summary: Qt Creator with ROS plugin
@@ -23,7 +23,7 @@ parts:
     build-attributes:
     - enable-patchelf
     stage:
-    - -usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
+    - -usr/lib/${CRAFT_ARCH_TRIPLET}/dri
 
   mesa-no-patchelf:
     plugin: nil
@@ -32,7 +32,7 @@ parts:
     build-attributes:
     - no-patchelf
     stage:
-    - usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
+    - usr/lib/${CRAFT_ARCH_TRIPLET}/dri
 
   qt6:
     source: http://code.qt.io/qt/qt5.git
@@ -121,12 +121,12 @@ parts:
     build-attributes:
     - enable-patchelf
     override-build: |
-      cmake -S ${SNAPCRAFT_PART_SRC} -B ${SNAPCRAFT_PART_BUILD} -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${SNAPCRAFT_PART_INSTALL}
-      cmake --build ${SNAPCRAFT_PART_BUILD}
-      cmake --install ${SNAPCRAFT_PART_BUILD}
-      cmake --install ${SNAPCRAFT_PART_BUILD} --component Devel
+      cmake -S ${CRAFT_PART_SRC} -B ${CRAFT_PART_BUILD} -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${CRAFT_PART_INSTALL}
+      cmake --build ${CRAFT_PART_BUILD}
+      cmake --install ${CRAFT_PART_BUILD}
+      cmake --install ${CRAFT_PART_BUILD} --component Devel
     build-environment:
-    - LD_LIBRARY_PATH: ${SNAPCRAFT_STAGE}/lib
+    - LD_LIBRARY_PATH: ${CRAFT_STAGE}/lib
     build-packages:
     - libdw-dev
     stage-packages:
@@ -145,14 +145,14 @@ parts:
     cmake-parameters:
     - -DCMAKE_INSTALL_PREFIX=/
     build-environment:
-    - LD_LIBRARY_PATH: ${SNAPCRAFT_STAGE}/lib
+    - LD_LIBRARY_PATH: ${CRAFT_STAGE}/lib
     # using CMAKE_INSTALL_PREFIX=/ will install to /usr/local/ nevertheless
     override-prime: |
-      snapcraftctl prime
-      cp -r ${SNAPCRAFT_PRIME}/usr/lib/qtcreator/* ${SNAPCRAFT_PRIME}/lib/qtcreator/
-      rm -r ${SNAPCRAFT_PRIME}/usr/lib/qtcreator/
-      cp -r ${SNAPCRAFT_PRIME}/usr/share/qtcreator/* ${SNAPCRAFT_PRIME}/share/qtcreator/
-      rm -r ${SNAPCRAFT_PRIME}/usr/share/qtcreator/
+      craftctl default
+      cp -r ${CRAFT_PRIME}/usr/lib/qtcreator/* ${CRAFT_PRIME}/lib/qtcreator/
+      rm -r ${CRAFT_PRIME}/usr/lib/qtcreator/
+      cp -r ${CRAFT_PRIME}/usr/share/qtcreator/* ${CRAFT_PRIME}/share/qtcreator/
+      rm -r ${CRAFT_PRIME}/usr/share/qtcreator/
     build-packages:
     - libyaml-cpp-dev
     stage-packages:
@@ -186,6 +186,6 @@ apps:
     common-id: org.qt-project.qtcreator.desktop
     desktop: share/applications/org.qt-project.qtcreator.desktop
     environment:
-      LD_LIBRARY_PATH: ${SNAP}/lib:${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}
-      LIBGL_DRIVERS_PATH: ${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
+      LD_LIBRARY_PATH: ${SNAP}/lib:${SNAP}/usr/lib/${CRAFT_ARCH_TRIPLET}
+      LIBGL_DRIVERS_PATH: ${SNAP}/usr/lib/${CRAFT_ARCH_TRIPLET}/dri
       QT_QPA_PLATFORM: wayland;xcb
