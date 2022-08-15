@@ -57,7 +57,7 @@ parts:
     - libxkbcommon-dev
     - libxkbcommon-x11-dev
     override-pull: |
-      git clone git://code.qt.io/qt/qt5.git --depth 1 --shallow-submodules --branch v6.3.1
+      git clone git://code.qt.io/qt/qt5.git --depth 1 --shallow-submodules --branch v6.2.4
       cd qt5
       ./init-repository --module-subset=qt5compat,qtbase,qtdeclarative,qtquick3d,qtserialport,qtshadertools,qtsvg,qttools,qtwayland
     # run "make" and "make install" separately https://bugreports.qt.io/browse/QTBUG-60496
@@ -105,7 +105,7 @@ parts:
   qtcreator:
     after: [qt6]
     source: git://code.qt.io/qt-creator/qt-creator.git
-    source-tag: v8.0.0
+    source-tag: v8.0.1
     source-depth: 1
     parse-info: [share/metainfo/org.qt-project.qtcreator.appdata.xml]
     build-packages:
