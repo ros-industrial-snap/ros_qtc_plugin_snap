@@ -1,16 +1,11 @@
-name: qtcreator-ros
+name: qtcreator
 title: Qt Creator
 base: core22
 adopt-info: qtcreator
-icon: snap/gui/qtcreator-ros.svg
-summary: Qt Creator with ROS plugin
+summary: Qt Creator
 
 grade: stable
 confinement: classic
-
-architectures:
-  - build-on: amd64
-  - build-on: arm64
 
 parts:
 
@@ -34,84 +29,7 @@ parts:
     stage:
     - usr/lib/${CRAFT_ARCH_TRIPLET}/dri
 
-  qt6:
-    source: http://code.qt.io/qt/qt5.git
-    source-branch: "6.2.4"
-    source-depth: 1
-    source-submodules: [qt5compat,qtbase,qtdeclarative,qtquick3d,qtserialport,qtshadertools,qtsvg,qttools,qtwayland]
-    plugin: cmake
-    cmake-generator: Ninja
-    build-attributes:
-    - enable-patchelf
-    cmake-parameters:
-    - -DCMAKE_INSTALL_PREFIX=/
-    build-packages:
-    - libegl-dev
-    - libgl-dev
-    - libharfbuzz-dev
-    - libjpeg-dev
-    - libpng-dev
-    - libvulkan-dev
-    - libwayland-dev
-    # xcb QPA (Qt Platform Abstraction) platform plugin
-    - libfontconfig1-dev
-    - libfreetype6-dev
-    - libx11-dev
-    - libx11-xcb-dev
-    - libxext-dev
-    - libxfixes-dev
-    - libxi-dev
-    - libxrender-dev
-    - libxcb1-dev
-    - libxcb-glx0-dev
-    - libxcb-keysyms1-dev
-    - libxcb-image0-dev
-    - libxcb-shm0-dev
-    - libxcb-icccm4-dev
-    - libxcb-sync-dev
-    - libxcb-xfixes0-dev
-    - libxcb-shape0-dev
-    - libxcb-randr0-dev
-    - libxcb-render-util0-dev
-    - libxkbcommon-dev
-    - libxkbcommon-x11-dev
-    stage-packages:
-    - libegl1
-    - libfontconfig1
-    - libfreetype6
-    - libgl1
-    - libglvnd0
-    - libglx0
-    - libgraphite2-3
-    - libharfbuzz0b
-    - libjpeg-turbo8
-    - libpcre2-16-0
-    - libpng16-16
-    - libwayland-cursor0
-    - libwayland-egl1
-    - libx11-6
-    - libx11-xcb1
-    - libxau6
-    - libxcb-glx0
-    - libxcb-icccm4
-    - libxcb-image0
-    - libxcb-keysyms1
-    - libxcb-randr0
-    - libxcb-render-util0
-    - libxcb-render0
-    - libxcb-shape0
-    - libxcb-shm0
-    - libxcb-sync1
-    - libxcb-util1
-    - libxcb-xfixes0
-    - libxcb-xkb1
-    - libxcb1
-    - libxdmcp6
-    - libxkbcommon-x11-0
-    - libxkbcommon0
-
   qtcreator:
-    after: [qt6]
     source: http://code.qt.io/qt-creator/qt-creator.git
     source-tag: v10.0.0
     source-depth: 1
@@ -125,59 +43,27 @@ parts:
       cmake --build ${CRAFT_PART_BUILD}
       cmake --install ${CRAFT_PART_BUILD}
       cmake --install ${CRAFT_PART_BUILD} --component Devel
-    build-environment:
-    - LD_LIBRARY_PATH: ${CRAFT_STAGE}/lib
     build-packages:
+    - qt6-base-dev
+    - qt6-base-private-dev
+    - qt6-wayland-dev
+    - qt6-declarative-dev
+    - libqt6core5compat6-dev
+    - libegl-dev
+    - libgl-dev
     - libdw-dev
     stage-packages:
+    - libqt6concurrent6
+    - libqt6core6
+    - libqt6printsupport6
+    - libqt6sql6
+    - libqt6test6
+    - libqt6widgets6
+    - libqt6xml6
+    - libqt6core5compat6
+    - qt6-qpa-plugins
+    - qt6-wayland
     - libdw1
-
-  plugin-ros:
-    after: [qtcreator]
-    source: https://github.com/ros-industrial/ros_qtc_plugin.git
-    source-tag: "10.0"
-    source-depth: 1
-    plugin: cmake
-    cmake-generator: Ninja
-    build-attributes:
-    - enable-patchelf
-    cmake-parameters:
-    - -DCMAKE_INSTALL_PREFIX=/
-    build-environment:
-    - LD_LIBRARY_PATH: ${CRAFT_STAGE}/lib
-    # using CMAKE_INSTALL_PREFIX=/ will install to /usr/local/ nevertheless
-    override-prime: |
-      craftctl default
-      cp -r ${CRAFT_PRIME}/usr/lib/qtcreator/* ${CRAFT_PRIME}/lib/qtcreator/
-      rm -r ${CRAFT_PRIME}/usr/lib/qtcreator/
-      cp -r ${CRAFT_PRIME}/usr/share/qtcreator/* ${CRAFT_PRIME}/share/qtcreator/
-      rm -r ${CRAFT_PRIME}/usr/share/qtcreator/
-    build-packages:
-    - libyaml-cpp-dev
-    stage-packages:
-    - libyaml-cpp0.7
-
-  launchers:
-    after: [qtcreator]
-    plugin: nil
-    override-prime: |
-      sed -i -e 's|Name=Qt Creator|Name=Qt Creator ROS|g' share/applications/org.qt-project.qtcreator.desktop
-      sed -i -e 's|Icon=QtProject-qtcreator|Icon=${SNAP}/meta/gui/qtcreator-ros.svg|g' share/applications/org.qt-project.qtcreator.desktop
-
-  cleanup:
-    after: [launchers]
-    plugin: nil
-    override-prime: |
-      shopt -s extglob
-      rm -v bin/!("qtcreator"|"qtcreator.sh")
-      rm -r {doc,etc,include}
-      rm -r lib/{cmake,metatypes,objects-Release,qtcreator/objects-Release}
-      rm lib/*.prl
-      rm -v libexec/!("qtcreator")
-      rm -r {modules,qml}
-      rm -r share/qtcreator/{HACKING,LICENSE.GPL3-EXCEPT,README.md}
-      rm -r usr/share/{doc,doc-base,drirc.d,man,pkgconfig}
-      shopt -u extglob
 
 apps:
   qtcreator-ros:
