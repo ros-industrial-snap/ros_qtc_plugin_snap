@@ -30,47 +30,19 @@ parts:
     - usr/lib/${CRAFT_ARCH_TRIPLET}/dri
 
   qtcreator:
-    source: http://code.qt.io/qt-creator/qt-creator.git
-    source-tag: v10.0.0
-    source-depth: 1
-    parse-info: [share/metainfo/org.qt-project.qtcreator.appdata.xml]
-    plugin: cmake
-    cmake-generator: Ninja
+    parse-info: [usr/share/metainfo/org.qt-project.qtcreator.appdata.xml]
+    plugin: nil
     build-attributes:
     - enable-patchelf
-    override-build: |
-      cmake -S ${CRAFT_PART_SRC} -B ${CRAFT_PART_BUILD} -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${CRAFT_PART_INSTALL}
-      cmake --build ${CRAFT_PART_BUILD}
-      cmake --install ${CRAFT_PART_BUILD}
-      cmake --install ${CRAFT_PART_BUILD} --component Devel
-    build-packages:
-    - qt6-base-dev
-    - qt6-base-private-dev
-    - qt6-wayland-dev
-    - qt6-declarative-dev
-    - libqt6core5compat6-dev
-    - libegl-dev
-    - libgl-dev
-    - libdw-dev
     stage-packages:
-    - libqt6concurrent6
-    - libqt6core6
-    - libqt6printsupport6
-    - libqt6sql6
-    - libqt6test6
-    - libqt6widgets6
-    - libqt6xml6
-    - libqt6core5compat6
-    - qt6-qpa-plugins
-    - qt6-wayland
-    - libdw1
+    - qtcreator
 
 apps:
   qtcreator-ros:
-    command: bin/qtcreator
+    command: usr/bin/qtcreator
     common-id: org.qt-project.qtcreator.desktop
-    desktop: share/applications/org.qt-project.qtcreator.desktop
+    desktop: usr/share/applications/org.qt-project.qtcreator.desktop
     environment:
-      LD_LIBRARY_PATH: ${SNAP}/lib:${SNAP}/usr/lib/${CRAFT_ARCH_TRIPLET}
-      LIBGL_DRIVERS_PATH: ${SNAP}/usr/lib/${CRAFT_ARCH_TRIPLET}/dri
+      LD_LIBRARY_PATH: ${SNAP}/usr/lib:${SNAP}/usr/lib/${CRAFT_ARCH_TRIPLET}
+      # LIBGL_DRIVERS_PATH: ${SNAP}/usr/lib/${CRAFT_ARCH_TRIPLET}/dri
       QT_QPA_PLATFORM: wayland;xcb
