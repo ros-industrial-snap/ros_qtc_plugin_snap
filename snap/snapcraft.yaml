@@ -105,7 +105,7 @@ parts:
   qtcreator:
     after: [qt6]
     source: git://code.qt.io/qt-creator/qt-creator.git
-    source-tag: v11.0.0
+    source-tag: v11.0.1
     source-depth: 1
     parse-info: [share/metainfo/org.qt-project.qtcreator.appdata.xml]
     build-packages:
