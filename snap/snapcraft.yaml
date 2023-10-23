@@ -84,7 +84,6 @@ parts:
     - libglx0
     - libgraphite2-3
     - libharfbuzz0b
-    - libicu66
     - libjpeg-turbo8
     - libpcre2-16-0
     - libpng16-16
