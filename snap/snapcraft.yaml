@@ -36,7 +36,7 @@ parts:
 
   qt6:
     source: http://code.qt.io/qt/qt5.git
-    source-branch: "6.2.4"
+    source-branch: "v6.6.0"
     source-depth: 1
     source-submodules: [qt5compat,qtbase,qtdeclarative,qtquick3d,qtserialport,qtshadertools,qtsvg,qttools,qtwayland]
     plugin: cmake
@@ -173,7 +173,7 @@ parts:
       shopt -s extglob
       rm -v bin/!("qtcreator"|"qtcreator.sh")
       rm -r {doc,etc,include}
-      rm -r lib/{cmake,metatypes,objects-Release,qtcreator/objects-Release}
+      rm -r lib/{cmake,objects-Release,qtcreator/objects-Release}
       rm lib/*.prl
       rm -v libexec/!("qtcreator")
       rm -r {modules,qml}
