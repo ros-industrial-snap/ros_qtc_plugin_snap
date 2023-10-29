@@ -131,7 +131,7 @@ parts:
     - libdw-dev
     stage-packages:
     - libdw1
-    - libyaml-cpp0.6
+    - libyaml-cpp0.7
 
   plugin-ros:
     after: [qtcreator]
@@ -156,7 +156,7 @@ parts:
     build-packages:
     - libyaml-cpp-dev
     stage-packages:
-    - libyaml-cpp0.6
+    - libyaml-cpp0.7
 
   launchers:
     after: [qtcreator]
