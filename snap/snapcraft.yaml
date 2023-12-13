@@ -114,7 +114,7 @@ parts:
   qtcreator:
     after: [qt6]
     source: http://code.qt.io/qt-creator/qt-creator.git
-    source-tag: v12.0.0
+    source-tag: v12.0.1
     source-depth: 1
     parse-info: [share/metainfo/org.qt-project.qtcreator.appdata.xml]
     plugin: cmake
