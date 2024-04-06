@@ -137,7 +137,7 @@ parts:
   plugin-ros:
     after: [qtcreator]
     source: https://github.com/ros-industrial/ros_qtc_plugin.git
-    source-tag: "13.0"
+    source-tag: "13.1"
     source-depth: 1
     plugin: cmake
     cmake-generator: Ninja
