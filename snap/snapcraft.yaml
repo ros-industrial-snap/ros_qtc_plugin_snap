@@ -114,7 +114,7 @@ parts:
   qtcreator:
     after: [qt6]
     source: http://code.qt.io/qt-creator/qt-creator.git
-    source-tag: v13.0.2
+    source-tag: v14.0.0
     source-depth: 1
     parse-info: [share/metainfo/org.qt-project.qtcreator.appdata.xml]
     plugin: cmake
@@ -137,7 +137,7 @@ parts:
   plugin-ros:
     after: [qtcreator]
     source: https://github.com/ros-industrial/ros_qtc_plugin.git
-    source-tag: "13.1"
+    source-tag: "14.0"
     source-depth: 1
     plugin: cmake
     cmake-generator: Ninja
