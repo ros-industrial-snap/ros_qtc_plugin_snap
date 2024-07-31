@@ -1,16 +1,12 @@
 name: qtcreator-ros
 title: Qt Creator
-base: core22
+base: core24
 adopt-info: qtcreator
 icon: snap/gui/qtcreator-ros.svg
 summary: Qt Creator with ROS plugin
 
 grade: stable
 confinement: classic
-
-architectures:
-  - build-on: amd64
-  - build-on: arm64
 
 parts:
 
@@ -23,7 +19,7 @@ parts:
     build-attributes:
     - enable-patchelf
     stage:
-    - -usr/lib/${CRAFT_ARCH_TRIPLET}/dri
+    - -usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/dri
 
   mesa-no-patchelf:
     plugin: nil
@@ -32,7 +28,7 @@ parts:
     build-attributes:
     - no-patchelf
     stage:
-    - usr/lib/${CRAFT_ARCH_TRIPLET}/dri
+    - usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/dri
 
   qt6:
     source: http://code.qt.io/qt/qt5.git
@@ -186,6 +182,6 @@ apps:
     common-id: org.qt-project.qtcreator.desktop
     desktop: share/applications/org.qt-project.qtcreator.desktop
     environment:
-      LD_LIBRARY_PATH: ${SNAP}/lib:${SNAP}/usr/lib/${CRAFT_ARCH_TRIPLET}
-      LIBGL_DRIVERS_PATH: ${SNAP}/usr/lib/${CRAFT_ARCH_TRIPLET}/dri
+      LD_LIBRARY_PATH: ${SNAP}/lib:${SNAP}/usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}
+      LIBGL_DRIVERS_PATH: ${SNAP}/usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/dri
       QT_QPA_PLATFORM: wayland;xcb
