@@ -166,14 +166,14 @@ parts:
     plugin: nil
     override-prime: |
       shopt -s extglob
-      rm -v bin/!("qtcreator"|"qtcreator.sh")
-      rm -r {doc,etc,include}
-      rm -r lib/{cmake,metatypes,objects-Release,qtcreator/objects-Release}
-      rm lib/*.prl
-      rm -v libexec/!("qtcreator")
-      rm -r {modules,qml}
-      rm -r share/qtcreator/{HACKING,LICENSE.GPL3-EXCEPT,README.md}
-      rm -r usr/share/{doc,doc-base,drirc.d,man,pkgconfig}
+      rm -f -v bin/!("qtcreator"|"qtcreator.sh")
+      rm -f -r {doc,etc,include}
+      rm -f -r lib/{cmake,metatypes,objects-Release,qtcreator/objects-Release}
+      rm -f lib/*.prl
+      rm -f -v libexec/!("qtcreator")
+      rm -f -r {modules,qml}
+      rm -f -r share/qtcreator/{HACKING,LICENSE.GPL3-EXCEPT,README.md}
+      rm -f -r usr/share/{doc,doc-base,drirc.d,man,pkgconfig}
       shopt -u extglob
 
 apps:
